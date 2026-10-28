@@ -1,0 +1,17 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "FlexRefLab",
+  "outputfilename": "FlexRefLab",
+  "frontend:install": "",
+  "frontend:build": "",
+  "frontend:dir": "frontend",
+  "wailsjsdir": "",
+  "author": {
+    "name": "Michael VA3MW"
+  },
+  "info": {
+    "productName": "Flex Reference Lab",
+    "productVersion": "0.1.0",
+    "comments": "FlexRadio frequency reference calibration and stability analyser"
+  }
+}

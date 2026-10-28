@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flex Reference Lab</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--ink:#111827;--mute:#6b7280;--line:#e5e7eb;--acc:#2563eb;--good:#15803d;--warn:#b45309;--bad:#b91c1c;
+--tcxo:#d97706;--ext:#7c3aed;--gpsdo:#2563eb;--gnss:#0d9488}
+*{box-sizing:border-box}
+body{margin:0;font:14px "Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+header{display:flex;align-items:center;gap:16px;padding:10px 16px;background:#111827;color:#fff}
+header h1{font-size:17px;margin:0;font-weight:600}
+header .radio{margin-left:auto;font-size:13px;color:#d1d5db;display:flex;gap:12px;align-items:center}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;background:#374151;color:#fff}
+.pill.TCXO{background:var(--tcxo)}.pill.EXT10{background:var(--ext)}.pill.GPSDO{background:var(--gpsdo)}.pill.GNSS{background:var(--gnss)}
+.pill.ok{background:#15803d}.pill.no{background:#b91c1c}.pill.rec{background:#dc2626;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.5}}
+nav{display:flex;gap:2px;padding:0 16px;background:#1f2937}
+nav button{background:none;border:0;color:#d1d5db;padding:10px 16px;font:inherit;cursor:pointer;border-bottom:3px solid transparent}
+nav button.on{color:#fff;border-color:#60a5fa}
+main{padding:16px;max-width:1500px;margin:0 auto}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 10px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:1100px){.g2,.g3,.g4{grid-template-columns:1fr}}
+label{display:block;font-size:12px;color:var(--mute);margin:8px 0 3px}
+input,select,textarea{font:inherit;padding:6px 8px;border:1px solid #d1d5db;border-radius:6px;width:100%;background:#fff;color:var(--ink)}
+input[type=checkbox]{width:auto}
+textarea{min-height:56px}
+.row{display:flex;gap:8px;align-items:end;flex-wrap:wrap}.row>*{flex:1}.row>.auto{flex:0 0 auto}
+button.b{font:inherit;padding:7px 14px;border-radius:6px;border:1px solid #d1d5db;background:#fff;cursor:pointer}
+button.b:hover{background:#f3f4f6}
+button.p{background:var(--acc);border-color:var(--acc);color:#fff}button.p:hover{background:#1d4ed8}
+button.r{background:#dc2626;border-color:#dc2626;color:#fff}
+button:disabled{opacity:.5;cursor:default}
+.mute{color:var(--mute)}.small{font-size:12px}
+.msg{padding:8px 12px;border-radius:6px;margin:8px 0;font-size:13px}
+.msg.err{background:#fef2f2;color:var(--bad);border:1px solid #fecaca}.msg.info{background:#eff6ff;border:1px solid #bfdbfe}
+.msg.warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{border-bottom:1px solid var(--line);padding:5px 6px;text-align:left;white-space:nowrap}
+th{font-weight:600;color:#374151;background:#f9fafb;position:sticky;top:0}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.big{font-size:30px;font-weight:600;font-variant-numeric:tabular-nums}
+.stat{background:#f9fafb;border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.stat .k{font-size:12px;color:var(--mute)}.stat .v{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.chart svg{width:100%;height:auto;border:1px solid var(--line);border-radius:6px}
+.f{padding:6px 10px;border-left:4px solid #9ca3af;margin:4px 0;background:#f9fafb}
+.f.good{border-color:var(--good)}.f.warn{border-color:#d97706;background:#fffbeb}.f.bad{border-color:var(--bad);background:#fef2f2}
+.PASS{color:var(--good);font-weight:600}.FAIL{color:var(--bad);font-weight:600}.MARGINAL{color:var(--warn);font-weight:600}
+.runs{display:grid;grid-template-columns:320px minmax(0,1fr);gap:14px}
+.runlist{max-height:calc(100vh - 160px);overflow:auto}
+.runitem{padding:8px 10px;border-bottom:1px solid var(--line);cursor:pointer}
+.runitem:hover{background:#f3f4f6}.runitem.on{background:#dbeafe}
+.runitem .t{font-weight:600}.scroll{overflow:auto}
+.log{font:12px Consolas,monospace;max-height:70vh;overflow:auto;background:#0b1020;color:#d1d5db;padding:8px;border-radius:6px}
+.log .WARN{color:#fbbf24}.log .ERROR{color:#f87171}.log .DEBUG,.log .TRAFFIC{color:#9ca3af}
+.chips label{display:inline-flex;gap:6px;align-items:center;margin:4px 14px 4px 0;color:var(--ink);font-size:14px}
+.tabs2{display:flex;gap:6px;margin:6px 0 10px;flex-wrap:wrap}
+.tabs2 button{padding:5px 10px;border:1px solid #d1d5db;background:#fff;border-radius:6px;cursor:pointer;font:inherit;font-size:13px}
+.tabs2 button.on{background:#111827;color:#fff;border-color:#111827}
+</style>
+</head>
+<body>
+<header>
+  <h1>Flex Reference Lab</h1><span id="ver" class="mute small"></span>
+  <div class="radio" id="hdrRadio"></div>
+</header>
+<nav id="nav">
+  <button data-t="setup" class="on">Setup</button>
+  <button data-t="measure">Measure</button>
+  <button data-t="runs">Runs &amp; analysis</button>
+  <button data-t="compare">Compare</button>
+  <button data-t="log">Log</button>
+</nav>
+<main>
+<div id="notice"></div>
+
+<!-- SETUP -->
+<section id="setup" class="on">
+ <div class="grid g2">
+  <div class="card">
+   <h2>Radio</h2>
+   <div class="row">
+    <div><label>Discovered radios</label><select id="radioSel"></select></div>
+    <div><label>…or IP address</label><input id="radioIP" placeholder="192.168.1.50"></div>
+    <div class="auto"><button class="b p" id="btnConnect">Connect</button></div>
+    <div class="auto"><button class="b" id="btnDisconnect">Disconnect</button></div>
+   </div>
+   <label><input type="checkbox" id="sim"> Use the built-in simulator (no radio, for practice and demos)</label>
+   <div class="row">
+    <div><label>GUI station (whose slice is used)</label><select id="station"></select></div>
+    <div><label>Slice</label><select id="slice"></select></div>
+    <div><label>DAX channel</label><select id="dax"></select></div>
+   </div>
+   <p class="small mute">The slice is put in DIGU with RIT off and no DIGU offset, tuned so the carrier is an audio tone, and assigned to the DAX channel. Use a DAX channel that SmartSDR DAX isn't using for something else.</p>
+   <div id="radioInfo" class="small"></div>
+  </div>
+
+  <div class="card">
+   <h2>Frequency reference</h2>
+   <div id="refInfo"></div>
+   <div class="row">
+    <div><label>Select the radio's reference by hand</label><select id="oscSel">
+      <option value="auto">Auto</option><option value="tcxo">TCXO</option><option value="gpsdo">GPSDO / GNSS</option><option value="external">External 10 MHz</option></select></div>
+    <div class="auto"><button class="b" id="btnOsc">Apply</button></div>
+   </div>
+   <label>The radio calls a disciplined oscillator "gpsdo". Label it as</label>
+   <select id="gpsdoAs"><option value="">Automatic (GNSS if the radio reports a GNSS receiver and no GPSDO)</option><option value="GPSDO">GPSDO</option><option value="GNSS">GNSS</option></select>
+   <div id="gpsInfo" class="small" style="margin-top:8px"></div>
+  </div>
+ </div>
+
+ <div class="grid g2">
+  <div class="card">
+   <h2>Stimulus (the carrier the radio is measured against)</h2>
+   <div class="row">
+    <div><label>Preset</label><select id="preset">
+      <option value="">— choose —</option>
+      <option data-k="lab" data-f="10000000" data-u="0.01">Lab: 10 MHz from a GPSDO-locked generator</option>
+      <option data-k="lab" data-f="14100000" data-u="0.01">Lab: 14.100 MHz from a GPSDO-locked generator</option>
+      <option data-k="lab" data-f="28000000" data-u="0.01">Lab: 28.000 MHz from a GPSDO-locked generator</option>
+      <option data-k="wwv" data-f="5000000" data-u="20">WWV/WWVH 5 MHz (off air)</option>
+      <option data-k="wwv" data-f="10000000" data-u="10">WWV/WWVH 10 MHz (off air)</option>
+      <option data-k="wwv" data-f="15000000" data-u="7">WWV/WWVH 15 MHz (off air)</option>
+      <option data-k="wwv" data-f="20000000" data-u="5">WWV 20 MHz (off air)</option>
+      <option data-k="chu" data-f="3330000" data-u="30">CHU 3.330 MHz (off air)</option>
+      <option data-k="chu" data-f="7850000" data-u="15">CHU 7.850 MHz (off air)</option>
+      <option data-k="chu" data-f="14670000" data-u="8">CHU 14.670 MHz (off air)</option>
+    </select></div>
+    <div><label>Kind</label><select id="stimKind"><option value="lab">Lab carrier</option><option value="wwv">WWV / WWVH</option><option value="chu">CHU</option><option value="other">Other</option></select></div>
+   </div>
+   <div class="row">
+    <div><label>True carrier frequency (Hz)</label><input id="carrier" type="number" step="0.001"></div>
+    <div><label>Carrier uncertainty (ppb, 1σ)</label><input id="uncert" type="number" step="0.001"></div>
+   </div>
+   <label>Description (what it is and what it's locked to)</label><input id="stimLabel">
+   <label>Notes (generator model, level, attenuator, cabling…)</label><input id="stimNotes">
+   <div class="row">
+    <div><label>Audio tone (Hz)</label><input id="tone" type="number" step="1"></div>
+    <div><label>Gate (s)</label><input id="gate" type="number" min="1" step="1"></div>
+    <div><label>Operator</label><input id="operator"></div>
+   </div>
+   <p class="small mute" id="dialHint"></p>
+  </div>
+
+  <div class="card">
+   <h2>Reference sweep plan</h2>
+   <div class="chips" id="planRefs">
+    <label><input type="checkbox" value="tcxo"> TCXO</label>
+    <label><input type="checkbox" value="gpsdo"> GPSDO / GNSS</label>
+    <label><input type="checkbox" value="external"> External 10 MHz</label>
+   </div>
+   <div class="row">
+    <div><label>Settle after each switch (s)</label><input id="settle" type="number" min="0"></div>
+    <div><label>Measure per step (s)</label><input id="dwell" type="number" min="10"></div>
+    <div><label>Cycles (A-B-A-B…)</label><input id="cycles" type="number" min="1"></div>
+   </div>
+   <p class="small mute" id="planHint"></p>
+   <h2 style="margin-top:14px">Offset limits (±ppb, for PASS/FAIL)</h2>
+   <div class="row">
+    <div><label>TCXO</label><input id="specTCXO" type="number" step="any"></div>
+    <div><label>External 10 MHz</label><input id="specEXT10" type="number" step="any"></div>
+    <div><label>GPSDO</label><input id="specGPSDO" type="number" step="any"></div>
+    <div><label>GNSS</label><input id="specGNSS" type="number" step="any"></div>
+   </div>
+   <p class="small mute">Defaults are placeholders: set them to the engineering specification. Leave 0 for no limit.</p>
+   <div style="margin-top:10px"><button class="b p" id="btnSave">Save settings</button> <span id="saveMsg" class="small mute"></span></div>
+  </div>
+ </div>
+</section>
+
+<!-- MEASURE -->
+<section id="measure">
+ <div class="card">
+  <div class="row">
+   <div><label>Run name</label><input id="runName" placeholder="e.g. FLEX-6600 SN1234 TCXO vs GPSDO, cold start"></div>
+   <div><label>Notes</label><input id="runNotes" placeholder="ambient, warm-up time, cabling…"></div>
+   <div class="auto"><button class="b p" id="btnStart">Start single run</button></div>
+   <div class="auto"><button class="b p" id="btnSweep">Start reference sweep</button></div>
+   <div class="auto"><button class="b r" id="btnStop" disabled>Stop</button></div>
+  </div>
+  <div id="measMsg"></div>
+ </div>
+ <div class="grid g4" id="liveStats"></div>
+ <div class="card" style="margin-top:14px">
+  <div class="row"><div class="auto"><span class="small mute">Window</span></div>
+   <div class="auto"><select id="liveWin" style="width:auto"><option value="5">5 min</option><option value="15" selected>15 min</option><option value="60">1 h</option><option value="0">all</option></select></div>
+   <div></div>
+   <div><input id="noteText" placeholder="Add a note to the run (e.g. 'opened the shack door')"></div><div class="auto"><button class="b" id="btnNote">Add note</button></div>
+  </div>
+  <div class="chart" id="liveChart" style="margin-top:8px"></div>
+ </div>
+ <div class="card"><h2>Latest readings</h2><div class="scroll"><table id="recent"></table></div></div>
+</section>
+
+<!-- RUNS -->
+<section id="runs">
+ <div class="runs">
+  <div class="card runlist"><div class="row" style="margin-bottom:6px"><div><b>Runs</b></div>
+   <div class="auto"><button class="b" id="btnImport" title="Import WSJT-X FreqCal fmt.all">Import fmt.all</button></div>
+   <div class="auto"><button class="b" id="btnFolder">Folder</button></div></div>
+   <div id="runList"></div></div>
+  <div id="runView"><div class="card mute">Choose a run.</div></div>
+ </div>
+</section>
+
+<!-- COMPARE -->
+<section id="compare">
+ <div class="card">
+  <h2>Compare runs</h2>
+  <p class="small mute">Tick runs to compare their references side by side (different radios, firmware, temperatures, days).</p>
+  <div class="scroll" style="max-height:260px"><table id="cmpPick"></table></div>
+  <div style="margin-top:10px"><button class="b p" id="btnCmp">Compare</button> <button class="b" id="btnCmpExport">Export comparison report</button></div>
+ </div>
+ <div id="cmpView"></div>
+</section>
+
+<!-- LOG -->
+<section id="log">
+ <div class="card"><label><input type="checkbox" id="traffic"> Capture radio API traffic</label><div class="log" id="logBox"></div></div>
+</section>
+</main>
+
+<!-- Import dialog -->
+<div id="impDlg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9">
+ <div class="card" style="max-width:560px;margin:10vh auto">
+  <h2>Import WSJT-X FreqCal (fmt.all)</h2>
+  <p class="small mute">WSJT-X's own frequency calibration must have been zero (Settings &gt; Frequencies). No radio telemetry is available for imported runs.</p>
+  <div class="row"><div><label>File</label><input id="impPath"></div><div class="auto"><button class="b" id="impBrowse">Browse…</button></div></div>
+  <div class="row"><div><label>WSJT-X dial frequency (Hz)</label><input id="impDial" type="number"></div><div><label>True carrier (Hz)</label><input id="impCarrier" type="number"></div></div>
+  <div class="row"><div><label>Station kHz column (0 = all lines)</label><input id="impKHz" type="number" value="0"></div>
+   <div><label>Reference in use</label><select id="impRef"><option>TCXO</option><option value="EXT10">External 10 MHz</option><option>GPSDO</option><option>GNSS</option><option>UNKNOWN</option></select></div></div>
+  <label>Run name</label><input id="impName">
+  <div id="impMsg"></div>
+  <div style="margin-top:10px"><button class="b p" id="impGo">Import</button> <button class="b" id="impCancel">Cancel</button></div>
+ </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const go = () => window.go.main.App;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fx = (v, d = 3) => v == null || !isFinite(v) ? '—' : Number(v).toFixed(d);
+const sg = (v, d = 3) => v == null || !isFinite(v) ? '—' : (v >= 0 ? '+' : '') + Number(v).toFixed(d);
+const sci = v => v == null || !isFinite(v) || v <= 0 ? '—' : Number(v).toExponential(2);
+const dur = s => s == null ? '—' : s < 120 ? s.toFixed(0) + ' s' : s < 7200 ? (s / 60).toFixed(1) + ' min' : (s / 3600).toFixed(2) + ' h';
+const utc = t => t ? t.replace('T', ' ').slice(0, 19) : '—';
+const REF = {TCXO: 'TCXO', EXT10: 'External 10 MHz', GPSDO: 'GPSDO', GNSS: 'GNSS', UNKNOWN: 'Unknown'};
+let S = null, tab = 'setup', curRun = null, logID = 0, dirty = false;
+
+function msg(el, text, kind = 'err') { $(el).innerHTML = text ? `<div class="msg ${kind}">${esc(text)}</div>` : ''; }
+async function call(f, ...a) { try { return await go()[f](...a); } catch (e) { throw (e && e.message) || String(e); } }
+
+$$('#nav button').forEach(b => b.onclick = () => show(b.dataset.t));
+function show(t) {
+  tab = t;
+  $$('#nav button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  $$('main section').forEach(s => s.classList.toggle('on', s.id === t));
+  if (t === 'runs') loadRuns(); if (t === 'compare') loadCmpPick(); if (t === 'measure') refreshLive(); if (t === 'log') pollLog();
+}
+
+// ---------- state ----------
+async function refresh() {
+  S = await call('GetState');
+  $('#ver').textContent = 'v' + S.version;
+  $('#notice').innerHTML = S.notice ? `<div class="msg warn">${esc(S.notice)}</div>` : '';
+  const r = S.radio, ref = r.ref || {};
+  const live = S.live || {};
+  $('#hdrRadio').innerHTML = (live.running ? '<span class="pill rec">● RECORDING</span>' : '') +
+    (r.connected ? `<span>${esc(r.model)} “${esc(r.nickname)}” ${esc(r.ip)}</span>` : '<span>No radio</span>') +
+    (ref.known ? `<span class="pill ${S.ref_label}">${REF[S.ref_label] || S.ref_label}</span><span class="pill ${ref.locked || ref.state === 'tcxo' ? 'ok' : 'no'}">${ref.locked || ref.state === 'tcxo' ? 'locked' : 'NOT locked'}</span>` : '');
+  if (!dirty) fillSettings();
+  fillRadio();
+  $('#btnStop').disabled = !live.running;
+  $('#btnStart').disabled = $('#btnSweep').disabled = !!live.running;
+}
+
+function fillSettings() {
+  const s = S.settings;
+  $('#sim').checked = s.simulator; $('#radioIP').value = s.radio_ip || '';
+  $('#tone').value = s.tone_hz; $('#gate').value = s.gate_sec; $('#operator').value = s.operator || '';
+  $('#stimKind').value = s.stimulus.kind; $('#carrier').value = s.stimulus.carrier_hz; $('#uncert').value = s.stimulus.uncert_ppb;
+  $('#stimLabel').value = s.stimulus.label || ''; $('#stimNotes').value = s.stimulus.notes || '';
+  $('#gpsdoAs').value = s.gpsdo_as || '';
+  $$('#planRefs input').forEach(i => i.checked = (s.plan.refs || []).includes(i.value));
+  $('#settle').value = s.plan.settle_sec; $('#dwell').value = s.plan.dwell_sec; $('#cycles').value = s.plan.cycles;
+  for (const k of ['TCXO', 'EXT10', 'GPSDO', 'GNSS']) $('#spec' + k).value = (s.spec || {})[k] ?? 0;
+  hints();
+}
+
+function readSettings() {
+  const s = structuredClone(S.settings);
+  s.simulator = $('#sim').checked; s.radio_ip = $('#radioIP').value.trim();
+  s.tone_hz = +$('#tone').value; s.gate_sec = +$('#gate').value || 1; s.operator = $('#operator').value;
+  s.stimulus = {kind: $('#stimKind').value, carrier_hz: +$('#carrier').value, uncert_ppb: +$('#uncert').value, label: $('#stimLabel').value, notes: $('#stimNotes').value};
+  s.gpsdo_as = $('#gpsdoAs').value;
+  s.plan = {...s.plan, refs: $$('#planRefs input').filter(i => i.checked).map(i => i.value), settle_sec: +$('#settle').value, dwell_sec: +$('#dwell').value, cycles: +$('#cycles').value || 1};
+  s.spec = {}; for (const k of ['TCXO', 'EXT10', 'GPSDO', 'GNSS']) s.spec[k] = +$('#spec' + k).value || 0;
+  s.slice = $('#slice').value || s.slice; s.dax = +$('#dax').value || s.dax; s.station = $('#station').value;
+  return s;
+}
+
+function hints() {
+  const c = +$('#carrier').value, t = +$('#tone').value;
+  $('#dialHint').textContent = c > 0 ? `Slice dial ${((Math.round(c - t)) / 1e6).toFixed(6)} MHz DIGU; a 1 ppb reference error moves the tone ${(c * 1e-9 * 1000).toFixed(2)} mHz.` : '';
+  const refs = $$('#planRefs input').filter(i => i.checked).length, cyc = +$('#cycles').value || 1;
+  const step = (+$('#settle').value || 0) + (+$('#dwell').value || 0);
+  $('#planHint').textContent = refs ? `${refs * cyc} steps, about ${dur(refs * cyc * step)} plus lock time. The radio's reference setting is restored at the end.` : 'Tick the references to step through.';
+}
+$$('#setup input,#setup select').forEach(e => e.addEventListener('input', () => { dirty = true; hints(); }));
+
+$('#preset').onchange = () => {
+  const o = $('#preset').selectedOptions[0]; if (!o.dataset.f) return;
+  $('#stimKind').value = o.dataset.k; $('#carrier').value = o.dataset.f; $('#uncert').value = o.dataset.u; $('#stimLabel').value = o.textContent;
+  dirty = true; hints();
+};
+
+function fillRadio() {
+  const r = S.radio, s = S.settings;
+  const sel = $('#radioSel'), cur = sel.value;
+  sel.innerHTML = '<option value="">—</option>' + (S.radios || []).map(x => `<option value="${esc(x.serial)}">${esc(x.model)} “${esc(x.nickname)}” ${esc(x.ip)} (${esc(x.status)})</option>`).join('');
+  sel.value = cur || (S.radios || []).find(x => x.serial === s.serial)?.serial || '';
+  const st = $('#station'), sc = st.value || s.station || r.bound_station || '';
+  st.innerHTML = '<option value="">(automatic if only one)</option>' + (r.stations || []).map(x => `<option>${esc(x.name)}</option>`).join('');
+  st.value = sc;
+  const sl = $('#slice'), slv = sl.value || s.slice;
+  const mine = (r.slices || []).filter(x => x.in_use && x.client_handle === r.bound_handle);
+  sl.innerHTML = (mine.length ? mine : [{letter: s.slice}]).map(x => `<option value="${esc(x.letter)}">${esc(x.letter)}${x.freq_hz ? ' — ' + (x.freq_hz / 1e6).toFixed(6) + ' MHz ' + esc(x.mode) + (x.dax ? ' (DAX ' + x.dax + ')' : '') : ''}</option>`).join('');
+  sl.value = slv;
+  const dx = $('#dax'), dv = dx.value || s.dax;
+  if (!dx.options.length) dx.innerHTML = [1, 2, 3, 4, 5, 6, 7, 8].map(n => `<option>${n}</option>`).join('');
+  dx.value = dv;
+  const ref = r.ref || {};
+  $('#radioInfo').innerHTML = r.connected ? `Connected to <b>${esc(r.model)}</b> serial ${esc(r.serial || '—')}, firmware ${esc(r.version || '—')}; bound to ${esc(r.bound_station || '(no station)')}. Radio freq_error_ppb: ${esc(r.freq_error_ppb || '—')}` : '<span class="mute">Not connected.</span>';
+  const fitted = [ref.tcxo_present && 'TCXO', ref.gpsdo_present && 'GPSDO', ref.gnss_present && 'GNSS', ref.ext_present && 'external 10 MHz input'].filter(Boolean).join(', ');
+  $('#refInfo').innerHTML = ref.known ? `<div class="row"><div class="stat"><div class="k">In use</div><div class="v"><span class="pill ${S.ref_label}">${REF[S.ref_label]}</span></div></div>
+    <div class="stat"><div class="k">Setting</div><div class="v">${esc(ref.setting)}</div></div>
+    <div class="stat"><div class="k">Lock</div><div class="v">${ref.state === 'tcxo' ? '—' : ref.locked ? '<span class="PASS">locked</span>' : '<span class="FAIL">not locked</span>'}</div></div></div>
+    <p class="small">Fitted: ${esc(fitted || '—')}</p>` : '<p class="mute">The radio hasn\'t reported its reference.</p>';
+  const g = r.gps || {}, temps = (r.meters || []).filter(m => /deg/i.test(m.unit) && m.fresh);
+  $('#gpsInfo').innerHTML = (g.known ? `GPS: ${esc(g.status || '—')}, fix ${esc(g.fix || '—')}, ${g.tracked}/${g.visible} satellites tracked/visible, freq_error ${esc(g.freq_error || '—')}, ${esc(g.grid || '')}` : 'No GPS status.') +
+    (temps.length ? '<br>Temperatures: ' + temps.map(m => `${esc(m.name)} ${m.value.toFixed(1)} °C`).join(' · ') : '');
+}
+
+$('#btnSave').onclick = async () => {
+  try { await call('SaveSettings', readSettings()); dirty = false; $('#saveMsg').textContent = 'Saved.'; setTimeout(() => $('#saveMsg').textContent = '', 2000); await refresh(); }
+  catch (e) { $('#saveMsg').textContent = e; }
+};
+$('#btnConnect').onclick = async () => { try { await call('SaveSettings', {...readSettings(), simulator: false}); await call('Connect', $('#radioIP').value.trim() || $('#radioSel').value); dirty = false; } catch (e) { alert(e); } refresh(); };
+$('#btnDisconnect').onclick = async () => { await call('Disconnect'); refresh(); };
+$('#station').onchange = async () => { await call('SetStation', $('#station').value); };
+$('#btnOsc').onclick = async () => {
+  const v = $('#oscSel').value;
+  if (!confirm(`Switch the radio's reference oscillator to ${v}? This changes the radio's frequency until you switch it back.`)) return;
+  try { await call('SetOscillator', v); } catch (e) { alert(e); }
+};
+
+// ---------- measure ----------
+async function start(sweep) {
+  msg('#measMsg', '');
+  try {
+    if (dirty) { await call('SaveSettings', readSettings()); dirty = false; }
+    const s = S.settings;
+    if (sweep) {
+      const refs = s.plan.refs.map(r => ({tcxo: 'TCXO', gpsdo: 'GPSDO/GNSS', external: 'External 10 MHz'}[r])).join(' → ');
+      if (!confirm(`The sweep will switch the radio's reference: ${refs}, ${s.plan.cycles} cycle(s), then restore "${S.radio.ref.setting}". Slice ${s.slice} will be retuned. Continue?`)) return;
+    } else if (!confirm(`Slice ${s.slice} will be put in DIGU and tuned to ${((Math.round(s.stimulus.carrier_hz - s.tone_hz)) / 1e6).toFixed(6)} MHz, DAX ${s.dax}. Continue?`)) return;
+    await call('StartRun', {name: $('#runName').value, notes: $('#runNotes').value, sweep});
+    msg('#measMsg', 'Measuring. Acquiring the carrier takes about 2 s.', 'info');
+  } catch (e) { msg('#measMsg', e); }
+  refresh(); refreshLive();
+}
+$('#btnStart').onclick = () => start(false);
+$('#btnSweep').onclick = () => start(true);
+$('#btnStop').onclick = async () => { if (confirm('Stop the measurement?')) { await call('StopRun'); refresh(); refreshLive(); } };
+$('#btnNote').onclick = async () => { try { await call('AddNote', $('#noteText').value); $('#noteText').value = ''; } catch (e) { alert(e); } };
+$('#liveWin').onchange = () => refreshLive();
+
+let liveBusy = false;
+async function refreshLive() {
+  if (tab !== 'measure' || liveBusy) return;
+  liveBusy = true;
+  try {
+    const v = await call('GetLive', +$('#liveWin').value, $('#liveChart').clientWidth || 1100);
+    const st = v.status, l = st.last || {};
+    const phase = st.running ? (st.steps ? `step ${st.step}/${st.steps} · ${st.step_ref} · ${st.phase}${st.step_left != null && st.step_left > 0 ? ' · ' + dur(st.step_left) + ' left' : ''}` : 'measuring') : (st.message || 'idle');
+    const tr = st.tracker || {};
+    $('#liveStats').innerHTML = [
+      ['Reference error now', `<span class="big">${sg(l.fit_ppb, 3)}</span> ppb`, `${sg(l.err_hz, 4)} Hz at the carrier · <span class="pill ${l.ref || ''}">${REF[l.ref] || '—'}</span>`],
+      ['Last 60 s', `${sg(st.mean60, 3)} ppb`, `σ ${fx(st.std60, 3)} ppb · this step ${sg(st.mean_all, 3)} ppb`],
+      ['Carrier', `${fx(l.snr_db, 1)} dB SNR`, `tone ${fx(l.fit_hz, 4)} Hz · ${fx(l.level_db, 1)} dBFS · ${tr.acquired ? 'tracking' : 'searching'} (NCO ${fx(tr.nco, 2)})`],
+      ['Run', esc(phase), `${st.count || 0} gates, ${st.invalid || 0} not valid${l.why ? ' (last: ' + esc(l.why) + ')' : ''} · slice err ${sg(st.slice_err_mhz, 3)} mHz`],
+    ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="small mute">${s}</div></div>`).join('');
+    if (st.error) msg('#measMsg', st.error);
+    $('#liveChart').innerHTML = v.chart;
+    const rows = (v.recent || []).slice().reverse();
+    $('#recent').innerHTML = '<tr><th>UTC</th><th>Ref</th><th>Lock</th><th>Phase</th><th>Valid</th><th>Tone Hz</th><th>ppb</th><th>fit ppb</th><th>Err Hz</th><th>SNR</th><th>GPS</th><th>Temps °C</th></tr>' +
+      rows.map(s => `<tr><td>${utc(s.t)}</td><td>${REF[s.ref] || s.ref}</td><td>${s.locked ? 'yes' : 'no'}</td><td>${s.phase}</td><td>${s.valid ? 'yes' : esc(s.why)}</td><td class="n">${fx(s.audio_hz, 5)}</td><td class="n">${sg(s.ppb, 3)}</td><td class="n">${sg(s.fit_ppb, 3)}</td><td class="n">${sg(s.err_hz, 5)}</td><td class="n">${fx(s.snr_db, 1)}</td><td class="n">${s.gps_tracked || '—'}</td><td>${Object.entries(s.temps || {}).map(([k, v]) => k + ' ' + fx(v, 1)).join(', ')}</td></tr>`).join('');
+  } catch (e) { console.error(e); }
+  liveBusy = false;
+}
+
+// ---------- runs ----------
+let runsCache = [];
+async function loadRuns() {
+  runsCache = await call('ListRuns') || [];
+  $('#runList').innerHTML = runsCache.map(r => `<div class="runitem ${r.id === curRun ? 'on' : ''}" data-id="${esc(r.id)}">
+    <div class="t">${esc(r.name || r.id)} ${r.running ? '<span class="pill rec">LIVE</span>' : ''}</div>
+    <div class="small mute">${utc(r.created)} · ${esc(r.radio)} · ${(r.carrier / 1e6).toFixed(3)} MHz · ${r.sweep ? 'sweep' : r.source}</div></div>`).join('') || '<p class="mute">No runs yet.</p>';
+  $$('#runList .runitem').forEach(d => d.onclick = () => openRun(d.dataset.id));
+}
+
+let runTab = 'summary';
+async function openRun(id) {
+  curRun = id; $$('#runList .runitem').forEach(d => d.classList.toggle('on', d.dataset.id === id));
+  $('#runView').innerHTML = '<div class="card mute">Analysing…</div>';
+  let v;
+  try { v = await call('GetRun', id, Math.max(700, $('#runView').clientWidth - 40)); } catch (e) { $('#runView').innerHTML = `<div class="msg err">${esc(e)}</div>`; return; }
+  const r = v.result, m = r.meta;
+  const findings = (r.findings || []).map(f => `<div class="f ${f.level}">${esc(f.msg)}</div>`).join('');
+  const refRows = (r.refs || []).map(x => `<tr><td><span class="pill ${x.ref}">${esc(x.name)}</span>${x.baseline ? ' <span class="small mute">baseline</span>' : ''}</td><td class="n">${x.segments}</td><td class="n">${dur(x.hours * 3600)}</td>
+    <td class="n"><b>${sg(x.mean_ppb)}</b></td><td class="n">${sg(x.mean_hz, 4)}</td><td class="n">${fx(x.u_total_ppb)}</td><td class="n">${x.baseline ? '—' : sg(x.delta_ppb) + ' ± ' + fx(x.delta_u_ppb)}</td>
+    <td class="n">${fx(x.std_ppb)}</td><td class="n">${fx(x.repeat_ppb)}</td><td class="n">${sg(x.drift_ppb_h)}</td><td class="n">${sci(x.adev1)}</td><td class="n">${sci(x.adev10)}</td><td class="n">${sci(x.adev100)}</td><td class="n">${sci(x.adev1000)}</td>
+    <td class="n">${fx(x.settle_sec, 0)}</td><td class="${x.pass}">${x.pass || '—'}${x.spec_ppb ? ' <span class="small mute">±' + x.spec_ppb + '</span>' : ''}</td></tr>`).join('');
+  const segRows = (r.segments || []).map(s => `<tr><td>${s.index + 1}</td><td><span class="pill ${s.ref}">${esc(s.ref_name)}</span></td><td>${utc(s.start).slice(11)}</td><td class="n">${dur((new Date(s.end) - new Date(s.start)) / 1000)}</td>
+    <td class="n">${s.used}</td><td class="n">${s.settling}</td><td class="n">${s.invalid}</td><td class="n">${s.unlocked}</td><td class="n">${sg(s.mean_ppb)}</td><td class="n">${fx(s.u_mean_ppb)}</td><td class="n">${fx(s.std_ppb)}</td>
+    <td class="n">${sg(s.drift_ppb_h)} (${fx(s.drift_r2, 2)})</td><td class="n">${fx(s.settle_sec, 0)}</td><td class="n">${fx(s.snr_mean, 1)}</td><td class="n">${sg(s.slice_err_mhz, 3)}</td><td class="n">${sg(s.gps_err_ppb, 5)}</td><td>${esc(s.noise)}</td>
+    <td>${s.periodic && s.periodic.found ? fx(s.periodic.period_sec, 1) + ' s, ' + fx(s.periodic.amp_ppb, 3) + ' ppb' : '—'}</td></tr>`).join('');
+  const stab = (r.refs || []).map(x => { const s = r.segments[x.longest]; return `<h3 style="font-size:14px">${esc(x.name)} — segment ${s.index + 1}</h3><table><tr><th>τ s</th><th>ADEV</th><th>±1σ</th><th>MDEV</th><th>HDEV</th><th>TDEV ns</th><th>ADEV ppb</th><th>terms</th></tr>` +
+    (s.taus || []).map(t => `<tr><td class="n">${t.tau}</td><td class="n">${sci(t.adev)}</td><td class="n">${sci(t.aerr)}</td><td class="n">${sci(t.mdev)}</td><td class="n">${sci(t.hdev)}</td><td class="n">${fx(t.tdev * 1e9, 3)}</td><td class="n">${fx(t.adev * 1e9, 4)}</td><td class="n">${t.n}</td></tr>`).join('') + '</table>'; }).join('');
+  const temps = (r.segments || []).flatMap(s => (s.temps || []).map(t => `<tr><td>${s.index + 1} ${esc(s.ref_name)}</td><td>${esc(t.name)}</td><td class="n">${fx(t.mean, 2)}</td><td class="n">${fx(t.min, 2)} – ${fx(t.max, 2)}</td><td class="n">${sg(t.ppb_per_c)} ± ${fx(t.ppb_per_c_err)}</td><td class="n">${fx(t.r, 2)}</td></tr>`)).join('');
+  const events = (m.events || []).map(e => `<tr><td>${utc(e.time)}</td><td>${esc(e.kind)}</td><td style="white-space:normal">${esc(e.msg)}</td></tr>`).join('');
+  const charts = (v.order || []).filter(k => v.charts[k]).map(k => `<div class="chart" style="margin-bottom:10px">${v.charts[k]}</div>`).join('');
+  const tabs = {summary: 'Summary', charts: 'Charts', segments: 'Segments', stability: 'Stability tables', temps: 'Temperature', events: 'Events', setup: 'Setup & notes'};
+  $('#runView').innerHTML = `<div class="card">
+    <div class="row"><div><h2 style="margin:0">${esc(m.name || m.id)}</h2><div class="small mute">${utc(m.created)} UTC · ${dur(r.duration_sec)} · ${r.samples} gates · ${esc(m.radio.model)} ${esc(m.radio.serial || '')} · ${(m.stimulus.carrier_hz / 1e6).toFixed(6)} MHz ${esc(m.stimulus.kind)}</div></div>
+    <div class="auto"><button class="b p" id="rvReport">Engineering report (HTML)</button></div><div class="auto"><button class="b" id="rvFolder">Open folder (CSV/JSON)</button></div><div class="auto"><button class="b" id="rvDel">Delete</button></div></div>
+    <div class="tabs2">${Object.entries(tabs).map(([k, t]) => `<button data-k="${k}" class="${k === runTab ? 'on' : ''}">${t}</button>`).join('')}</div>
+    <div data-p="summary"><h3 style="font-size:14px">Findings</h3>${findings}<h3 style="font-size:14px">By reference</h3><div class="scroll"><table><tr><th>Reference</th><th>Visits</th><th>Time</th><th>Mean ppb</th><th>Hz</th><th>U ppb</th><th>Δ vs baseline</th><th>σ ppb</th><th>Repeat ppb</th><th>Drift ppb/h</th><th>ADEV 1 s</th><th>10 s</th><th>100 s</th><th>1000 s</th><th>Settle s</th><th>Result</th></tr>${refRows}</table></div>
+      ${v.charts.offset ? '<div class="chart" style="margin-top:10px">' + v.charts.offset + '</div>' : ''}${v.charts.stability ? '<div class="chart" style="margin-top:10px">' + v.charts.stability + '</div>' : ''}</div>
+    <div data-p="charts">${charts}</div>
+    <div data-p="segments" class="scroll"><table><tr><th>#</th><th>Reference</th><th>Start</th><th>Length</th><th>Used</th><th>Settle</th><th>Invalid</th><th>Unlocked</th><th>Mean ppb</th><th>U</th><th>σ</th><th>Drift ppb/h (R²)</th><th>Settle s</th><th>SNR</th><th>Slice err mHz</th><th>GPS err ppb</th><th>Noise (short τ)</th><th>Periodic</th></tr>${segRows}</table></div>
+    <div data-p="stability">${stab || '<p class="mute">Not enough data.</p>'}</div>
+    <div data-p="temps">${temps ? '<table><tr><th>Segment</th><th>Sensor</th><th>Mean °C</th><th>Range</th><th>ppb/°C</th><th>r</th></tr>' + temps + '</table>' : '<p class="mute">No temperature data.</p>'}</div>
+    <div data-p="events" class="scroll"><table><tr><th>UTC</th><th>Event</th><th>Detail</th></tr>${events}</table></div>
+    <div data-p="setup"><label>Name</label><input id="rvName" value="${esc(m.name)}"><label>Notes</label><textarea id="rvNotes">${esc(m.notes)}</textarea><div style="margin-top:8px"><button class="b" id="rvSave">Save</button></div>
+      <pre class="small" style="white-space:pre-wrap">${esc(JSON.stringify({radio: m.radio, stimulus: m.stimulus, slice: m.slice, dax: m.dax, dial_hz: m.dial_hz, tone_hz: m.tone_hz, gate_sec: m.gate_sec, plan: m.plan, temps: m.temps, freq_error_ppb: m.freq_error_ppb, spec_ppb: m.spec_ppb, source: m.source, app: m.app_version}, null, 2))}</pre>
+      <p class="small mute">${esc(v.dir)}</p></div></div>`;
+  const showP = k => { runTab = k; $$('#runView .tabs2 button').forEach(b => b.classList.toggle('on', b.dataset.k === k)); $$('#runView [data-p]').forEach(p => p.style.display = p.dataset.p === k ? '' : 'none'); };
+  $$('#runView .tabs2 button').forEach(b => b.onclick = () => showP(b.dataset.k)); showP(runTab);
+  $('#rvReport').onclick = async () => { try { const p = await call('ExportReport', id); } catch (e) { alert(e); } };
+  $('#rvFolder').onclick = () => call('OpenRunFolder', id);
+  $('#rvDel').onclick = async () => { if (!confirm(`Delete run "${m.name || m.id}" and all its data? This can't be undone.`)) return; try { await call('DeleteRun', id); curRun = null; $('#runView').innerHTML = ''; loadRuns(); } catch (e) { alert(e); } };
+  $('#rvSave').onclick = async () => { try { await call('EditRun', id, $('#rvName').value, $('#rvNotes').value); loadRuns(); } catch (e) { alert(e); } };
+}
+$('#btnFolder').onclick = () => call('OpenRunFolder', '');
+
+// import
+$('#btnImport').onclick = () => { $('#impDlg').style.display = 'block'; msg('#impMsg', ''); };
+$('#impCancel').onclick = () => $('#impDlg').style.display = 'none';
+$('#impBrowse').onclick = async () => { const p = await call('BrowseFmtAll'); if (p) $('#impPath').value = p; };
+$('#impGo').onclick = async () => {
+  try {
+    const id = await call('ImportFmtAll', {path: $('#impPath').value, name: $('#impName').value, dial_hz: +$('#impDial').value, carrier_hz: +$('#impCarrier').value, ref: $('#impRef').value, khz: +$('#impKHz').value});
+    $('#impDlg').style.display = 'none'; await loadRuns(); openRun(id);
+  } catch (e) { msg('#impMsg', e); }
+};
+
+// ---------- compare ----------
+async function loadCmpPick() {
+  runsCache = await call('ListRuns') || [];
+  $('#cmpPick').innerHTML = '<tr><th></th><th>Run</th><th>Date (UTC)</th><th>Radio</th><th>Carrier</th><th>Type</th></tr>' + runsCache.map(r => `<tr><td><input type="checkbox" value="${esc(r.id)}"></td><td>${esc(r.name || r.id)}</td><td>${utc(r.created)}</td><td>${esc(r.radio)}</td><td>${(r.carrier / 1e6).toFixed(3)} MHz</td><td>${r.sweep ? 'sweep' : r.source}</td></tr>`).join('');
+}
+const cmpIDs = () => $$('#cmpPick input:checked').map(i => i.value);
+$('#btnCmp').onclick = async () => {
+  const ids = cmpIDs(); if (!ids.length) return alert('Tick at least one run.');
+  try {
+    const v = await call('GetCompare', ids, Math.max(700, $('#compare').clientWidth - 40));
+    $('#cmpView').innerHTML = `<div class="card scroll"><table><tr><th>#</th><th>Run</th><th>Radio</th><th>Reference</th><th>Time</th><th>Mean ppb</th><th>U ppb</th><th>σ ppb</th><th>Drift ppb/h</th><th>ADEV 1 s</th><th>10 s</th><th>100 s</th><th>1000 s</th><th>Settle s</th><th>Result</th></tr>` +
+      (v.rows || []).map((r, i) => `<tr><td>${i + 1}</td><td>${esc(r.run_name || r.run_id)}</td><td>${esc(r.radio)}</td><td><span class="pill ${r.ref.ref}">${esc(r.ref.name)}</span></td><td class="n">${dur(r.ref.hours * 3600)}</td><td class="n"><b>${sg(r.ref.mean_ppb)}</b></td><td class="n">${fx(r.ref.u_total_ppb)}</td><td class="n">${fx(r.ref.std_ppb)}</td><td class="n">${sg(r.ref.drift_ppb_h)}</td><td class="n">${sci(r.ref.adev1)}</td><td class="n">${sci(r.ref.adev10)}</td><td class="n">${sci(r.ref.adev100)}</td><td class="n">${sci(r.ref.adev1000)}</td><td class="n">${fx(r.ref.settle_sec, 0)}</td><td class="${r.ref.pass}">${r.ref.pass || '—'}</td></tr>`).join('') +
+      `</table></div><div class="card chart">${v.offsets}</div><div class="card chart">${v.stability}</div>`;
+  } catch (e) { $('#cmpView').innerHTML = `<div class="msg err">${esc(e)}</div>`; }
+};
+$('#btnCmpExport').onclick = async () => { const ids = cmpIDs(); if (!ids.length) return alert('Tick at least one run.'); try { await call('ExportCompare', ids); } catch (e) { alert(e); } };
+
+// ---------- log ----------
+async function pollLog() {
+  if (tab !== 'log') return;
+  const es = await call('GetLog', logID) || [];
+  if (es.length) {
+    logID = es[es.length - 1].id;
+    const box = $('#logBox'), atEnd = box.scrollTop + box.clientHeight >= box.scrollHeight - 20;
+    box.insertAdjacentHTML('beforeend', es.map(e => `<div class="${e.level}">${esc(e.time)} ${e.level.padEnd(5)} [${esc(e.source)}] ${esc(e.msg)}</div>`).join(''));
+    while (box.childElementCount > 3000) box.firstChild.remove();
+    if (atEnd) box.scrollTop = box.scrollHeight;
+  }
+}
+$('#traffic').onchange = () => call('SetTraffic', $('#traffic').checked);
+
+// ---------- wiring ----------
+let pending = false;
+function onChanged() { if (pending) return; pending = true; setTimeout(async () => { pending = false; await refresh(); }, 250); }
+window.addEventListener('load', () => {
+  // Timers first: the first backend call can stall until the runtime is ready.
+  setInterval(() => refresh().catch(console.error), 3000);
+  setInterval(pollLog, 1000);
+  window.runtime.EventsOn('changed', onChanged);
+  window.runtime.EventsOn('sample', () => { refreshLive(); });
+  refresh().catch(console.error);
+  setInterval(() => { if (tab === 'runs' && curRun && runsCache.find(r => r.id === curRun && r.running)) openRun(curRun); }, 30000);
+});
+</script>
+</body>
+</html>

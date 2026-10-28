@@ -549,6 +549,7 @@ func findings(r Result) []Finding {
 			add("warn", "Segment %d (%s): GPS tracked as few as %d satellites.", g.Index+1, g.RefName, g.GPSTrkMin)
 		}
 	}
+	// "chu" only appears in old runs; CHU no longer transmits.
 	if k := r.Meta.Stimulus.Kind; k == "wwv" || k == "chu" || k == "other" {
 		add("info", "The stimulus is received off the air (%s): ionospheric Doppler adds roughly ±0.01–0.1 ppm at HF, so compare references with a lab carrier for ppb-level results.", r.Meta.Stimulus.Label)
 	}

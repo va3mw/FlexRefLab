@@ -30,7 +30,7 @@ It's a Windows desktop app (Go + Wails), spun off from [FMT Assistant](https://g
 
 ## What it does, in one paragraph
 
-You feed the radio a carrier of known frequency: a GPSDO-locked lab generator, WWV, or CHU. The app tunes one of your slices so the carrier becomes an audio tone of about 1 kHz. It takes that audio straight from the radio as a DAX stream and measures the tone's frequency every second, to a few millihertz. From the difference between where the radio *thinks* the carrier is and where it *really* is, it works out the reference's error in **parts per billion (ppb)**.
+You feed the radio a carrier of known frequency: a GPSDO-locked lab generator, or WWV / WWVH off air. The app tunes one of your slices so the carrier becomes an audio tone of about 1 kHz. It takes that audio straight from the radio as a DAX stream and measures the tone's frequency every second, to a few millihertz. From the difference between where the radio *thinks* the carrier is and where it *really* is, it works out the reference's error in **parts per billion (ppb)**.
 
 While it measures, it logs:
 - the radio's reference state and lock
@@ -315,7 +315,6 @@ The result can never be better than the carrier you measure against.
 |---|---|---|
 | **Signal generator locked to a GPSDO or rubidium standard** | ≪ 0.1 ppb | Everything, including GPSDO and GNSS at the sub-ppb level. **Use this for engineering results.** |
 | **WWV / WWVH** (2.5, 5, 10, 15, 20, 25 MHz), off air | ±5–20 ppb, from ionospheric Doppler | TCXO offset; Δ between references (the Doppler is common to both and mostly cancels) |
-| **CHU** (3.330, 7.850, 14.670 MHz), off air | Similar | As for WWV |
 
 - Set the carrier's **uncertainty** in Setup; it goes into U. The presets fill it in.
 - Aim for an SNR above 20 dB, without overloading the radio.

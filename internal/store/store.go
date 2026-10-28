@@ -52,7 +52,7 @@ type Radio struct {
 
 // Stimulus is the carrier the radio is measured against.
 type Stimulus struct {
-	Kind      string  `json:"kind"`  // lab, wwv, chu, other
+	Kind      string  `json:"kind"`  // lab, wwv, other ("chu" in runs made before CHU was dropped)
 	Label     string  `json:"label"` // e.g. "Lab synthesizer locked to house GPSDO"
 	CarrierHz float64 `json:"carrier_hz"`
 	UncertPPB float64 `json:"uncert_ppb"` // 1-sigma uncertainty of the carrier itself
